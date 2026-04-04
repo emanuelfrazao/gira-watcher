@@ -1,0 +1,3 @@
+# SQLFluff's DuckDB dialect cannot parse CREATE TYPE IF NOT EXISTS.
+# This file is validated by `just check` (DuckDB :memory: application) instead.
+migrations/001_initial_schema.sql

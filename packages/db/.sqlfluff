@@ -1,0 +1,39 @@
+[sqlfluff]
+dialect = duckdb
+templater = raw
+max_line_length = 140
+# 001_initial_schema.sql uses CREATE TYPE IF NOT EXISTS which SQLFluff's
+# DuckDB dialect cannot parse. Exclude it; validated by `just check` instead.
+exclude_rules = structure.column_order
+
+[sqlfluff:indentation]
+indent_unit = space
+tab_space_size = 4
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.types]
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.functions]
+capitalisation_policy = upper
+
+# Allow aligned AS for readability in views
+[sqlfluff:rules:layout.spacing]
+touch_at_end = false
+
+# Allow short table aliases (ss, s, sr)
+[sqlfluff:rules:aliasing.table]
+aliasing = explicit
+
+[sqlfluff:rules:aliasing.length]
+min_alias_length = 1
+
+# Allow JOIN without explicit INNER qualifier
+[sqlfluff:rules:ambiguous.join]
+fully_qualify_join_types = none
+
+# Allow 'version' as column name (DuckDB keyword used as identifier)
+[sqlfluff:rules:references.keywords]
+ignore_words = version

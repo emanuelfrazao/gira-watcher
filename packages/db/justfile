@@ -1,0 +1,38 @@
+db_file := env("DB_FILE", "gira_local.duckdb")
+
+# Apply all migrations to local DuckDB
+apply:
+    #!/usr/bin/env bash
+    for f in migrations/*.sql; do
+        echo "Applying $f..."
+        duckdb {{db_file}} < "$f"
+    done
+
+# Drop and recreate local database
+reset:
+    rm -f {{db_file}} {{db_file}}.wal
+    just apply
+
+# Apply migrations + load test fixtures
+seed: apply
+    duckdb {{db_file}} < seed/test_fixtures.sql
+
+# Lint SQL files with SQLFluff (DuckDB dialect)
+lint:
+    sqlfluff lint migrations/ seed/
+
+# Auto-fix lint violations
+fix:
+    sqlfluff fix migrations/ seed/
+
+# Type-check: apply all SQL to in-memory DuckDB (catches undefined refs, type errors)
+check:
+    #!/usr/bin/env bash
+    echo "Checking migrations..."
+    cat migrations/*.sql | duckdb :memory: || exit 1
+    echo "Checking migrations + seed..."
+    cat migrations/*.sql seed/test_fixtures.sql | duckdb :memory: || exit 1
+    echo "All SQL files valid."
+
+# Run all quality checks (lint + type-check)
+validate: lint check
