@@ -49,6 +49,8 @@ Thumbs.db
 .workbench/
 .claude/
 spec/
+AGENTS.md
+CLAUDE.md
 
 # Paraglide (generated)
 packages/website/src/lib/paraglide/
