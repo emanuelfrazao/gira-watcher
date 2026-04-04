@@ -1,0 +1,26 @@
+# Lint with ruff
+lint:
+    uv run ruff check .
+
+# Auto-fix lint violations
+fix:
+    uv run ruff check --fix .
+
+# Format with ruff
+format:
+    uv run ruff format .
+
+# Type check with pyright
+typecheck:
+    uv run pyright
+
+# Run all tests
+test:
+    uv run pytest
+
+# Run unit tests only
+test-unit:
+    uv run pytest -m unit
+
+# Run all quality checks
+check: lint typecheck test
