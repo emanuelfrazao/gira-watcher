@@ -1,0 +1,38 @@
+# Infrastructure management recipes
+
+# Download providers (without requiring state backend)
+init:
+    tofu init -backend=false
+
+# Download providers and connect to R2 state backend
+init-remote:
+    tofu init
+
+# Auto-format HCL files
+fmt:
+    tofu fmt -recursive
+
+# Check HCL formatting (CI mode)
+fmt-check:
+    tofu fmt -check -recursive
+
+# Validate configuration
+validate:
+    tofu validate
+
+# Preview changes
+plan:
+    tofu plan -var-file=environments/production.tfvars
+
+# Apply changes
+apply:
+    tofu plan -var-file=environments/production.tfvars -out=tfplan
+    tofu apply tfplan
+    rm -f tfplan
+
+# Destroy all managed resources
+destroy:
+    tofu destroy -var-file=environments/production.tfvars
+
+# Run CI checks (fmt + validate)
+check: init fmt-check validate
