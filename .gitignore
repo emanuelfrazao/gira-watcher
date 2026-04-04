@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+.venv/
+*.egg
+
+# Node.js
+node_modules/
+.svelte-kit/
+.vercel/
+build/
+
+# OpenTofu / Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraformrc
+terraform.rc
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+# .terraform.lock.hcl is committed (HashiCorp recommendation)
+
+# DuckDB
+*.duckdb
+*.duckdb.wal
+
+# Environment
+.env
+*.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project
+.workbench/
+.claude/
+spec/
+
+# Paraglide (generated)
+packages/website/src/lib/paraglide/
