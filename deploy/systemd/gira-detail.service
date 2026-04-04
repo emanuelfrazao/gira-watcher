@@ -1,0 +1,20 @@
+[Unit]
+Description=GIRA detail snapshot scraper (docks + bikes)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=gira
+Group=gira
+WorkingDirectory=/opt/gira-watcher/packages/scraper
+EnvironmentFile=/opt/gira-watcher/.env
+ExecStart=/opt/gira-watcher/packages/scraper/.venv/bin/python -m scraper.main --run-type detail
+TimeoutStartSec=240
+
+# Security hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/opt/gira-watcher
