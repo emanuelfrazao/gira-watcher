@@ -1,0 +1,27 @@
+# Start development server
+dev:
+    npm run dev
+
+# Production build
+build:
+    npm run build
+
+# Preview production build locally
+preview:
+    npm run preview
+
+# Type-check (svelte-check + TypeScript)
+check:
+    npm run check
+
+# Run tests
+test:
+    npm test
+
+# Lint (svelte-check covers this for SvelteKit projects)
+lint:
+    npm run check
+
+# Format with prettier
+format:
+    npx prettier --write .
