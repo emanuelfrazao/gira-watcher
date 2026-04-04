@@ -55,3 +55,7 @@ See `.env.example`. The `MOTHERDUCK_TOKEN` is only needed when reading real obse
 Runtime: numpy, scipy, matplotlib, duckdb (lightweight core).
 
 Optional `inference` extra: pymc, numpyro, arviz, jax, jaxlib. Install with `uv sync --extra inference` when implementing posterior inference.
+
+## Status
+
+This package is a **skeleton** -- all functions raise `NotImplementedError`. The module structure, type signatures, and test scaffolding are complete and ready for lifting the prototype code from `.workbench/analysis/05-bayesian-generative-simulation/code/`. Not wired into CI (intentionally excluded).

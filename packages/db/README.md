@@ -206,3 +206,7 @@ duckdb gira_local.duckdb "SELECT * FROM observations LIMIT 10"
 - **Website** (`packages/website/`): Defines TypeScript interfaces matching query result shapes. Connects to the public read-only MotherDuck share.
 
 There are no cross-package Python/TypeScript imports. The SQL files in this package ARE the contract. Correctness is verified by integration tests that apply migrations, insert typed rows, and assert results.
+
+## Status
+
+Schema is **complete** -- all 7 tables (3 dimension, 3 fact, 1 audit), 2 views (observations, dead_dock_flags), enums, indexes, and test fixtures are defined and passing validation.
