@@ -2,11 +2,6 @@ resource "vercel_project" "website" {
   name      = var.project_name
   framework = var.framework
 
-  git_repository = {
-    type = "github"
-    repo = var.github_repo
-  }
-
   root_directory = "packages/website"
 }
 

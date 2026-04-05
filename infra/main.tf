@@ -43,7 +43,6 @@ module "cloudflare" {
 module "vercel" {
   source = "./modules/vercel"
 
-  github_repo           = var.github_repo
   project_name          = var.vercel_project_name
   framework             = "sveltekit"
   environment_variables = var.vercel_env_vars
