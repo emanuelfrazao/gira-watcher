@@ -25,8 +25,10 @@ apt-get install -y -qq git curl
 # ---------------------------------------------------------------------------
 if ! command -v uv &>/dev/null; then
     echo ">>> Installing uv..."
-    curl -LsSf https://astral.sh/uv/install.sh \
-        | INSTALLER_NO_MODIFY_PATH=1 sh -s -- --install-dir /usr/local/bin
+    curl -LsSf https://astral.sh/uv/install.sh | INSTALLER_NO_MODIFY_PATH=1 sh
+    cp "$HOME/.local/bin/uv" /usr/local/bin/uv
+    cp "$HOME/.local/bin/uvx" /usr/local/bin/uvx
+    chmod 755 /usr/local/bin/uv /usr/local/bin/uvx
 else
     echo ">>> uv already installed: $(uv --version)"
 fi
@@ -79,7 +81,7 @@ echo ">>> Installing scraper dependencies..."
 su "$GIRA_USER" -c "cd $INSTALL_DIR/packages/scraper && /usr/local/bin/uv sync"
 
 # ---------------------------------------------------------------------------
-# 7. Create .env from template (skip if already exists)
+# 7. Create .env from template and populate from environment
 # ---------------------------------------------------------------------------
 if [ ! -f "$INSTALL_DIR/.env" ]; then
     echo ">>> Creating .env from template..."
@@ -87,8 +89,22 @@ if [ ! -f "$INSTALL_DIR/.env" ]; then
     chown "$GIRA_USER:$GIRA_USER" "$INSTALL_DIR/.env"
     chmod 0640 "$INSTALL_DIR/.env"
 else
-    echo ">>> .env already exists — skipping."
+    echo ">>> .env already exists — skipping template copy."
 fi
+
+# Populate .env values from environment variables (if set)
+echo ">>> Populating .env from environment..."
+git config --global --add safe.directory "$INSTALL_DIR" 2>/dev/null || true
+COMMIT_SHA=$(cd "$INSTALL_DIR" && git rev-parse HEAD 2>/dev/null || echo "unknown")
+sed -i "s|^GIRA_COMMIT_SHA=.*|GIRA_COMMIT_SHA=$COMMIT_SHA|" "$INSTALL_DIR/.env"
+
+for var in GIRA_STORAGE_TOKEN GIRA_API_EMAIL GIRA_API_PASSWORD; do
+    val="${!var:-}"
+    if [ -n "$val" ]; then
+        sed -i "s|^${var}=.*|${var}=${val}|" "$INSTALL_DIR/.env"
+        echo "  Set $var"
+    fi
+done
 
 # ---------------------------------------------------------------------------
 # 8. Install systemd units
