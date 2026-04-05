@@ -53,7 +53,7 @@ module "github" {
 
   repository                = var.github_repository
   branch_protection_pattern = "main"
-  required_status_checks    = ["CI / ci-gate"]
+  required_status_checks    = ["ci-gate"]
 
   secrets = {
     VPS_HOST = module.hetzner.server_ipv4
