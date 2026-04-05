@@ -2,7 +2,7 @@
 name = "gira-simulation"
 version = "0.0.0"
 description = "Bayesian generative simulation of GIRA bicycle station dynamics"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 dependencies = [
     "numpy>=1.24",
     "scipy>=1.11",
@@ -27,7 +27,7 @@ build-backend = "hatchling.build"
 packages = ["src/simulation"]
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py313"
 line-length = 100
 
 [tool.ruff.lint]
@@ -35,7 +35,7 @@ select = ["F", "E", "W", "I", "UP", "C4", "SIM", "PTH", "RET", "TCH"]
 
 [tool.pyright]
 typeCheckingMode = "strict"
-pythonVersion = "3.11"
+pythonVersion = "3.13"
 include = ["src"]
 reportMissingTypeStubs = false
 

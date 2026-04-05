@@ -10,7 +10,7 @@ export interface Station {
 	readonly stype: StationType;
 	readonly zone: string | null;
 	readonly creationDate: Date | null;
-	readonly totalDocks: number | null;
+	readonly totalDocks: number;
 	readonly firstSeen: Date;
 	readonly lastSeen: Date;
 }

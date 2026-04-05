@@ -41,6 +41,9 @@ override.tf.json
 *.swo
 *~
 
+# Wrangler
+.wrangler/
+
 # OS
 .DS_Store
 Thumbs.db
