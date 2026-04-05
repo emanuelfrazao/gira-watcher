@@ -182,11 +182,12 @@ gh secret set VPS_SSH_KEY < ~/.ssh/gira-watcher
 Get the VPS IP from the apply output, then run the setup script:
 
 ```bash
-# With automatic .env population
-GIRA_STORAGE_TOKEN="<motherduck-token>" \
-GIRA_API_EMAIL="<your-gira-email>" \
-GIRA_API_PASSWORD="<your-gira-password>" \
-  ssh -i ~/.ssh/gira-watcher root@<VPS_IP> "bash -s" < deploy/setup.sh
+# With automatic .env population — env vars must be inside the SSH command
+ssh -i ~/.ssh/gira-watcher root@<VPS_IP> \
+  "GIRA_STORAGE_TOKEN='<motherduck-token>' \
+   GIRA_API_EMAIL='<your-gira-email>' \
+   GIRA_API_PASSWORD='<your-gira-password>' \
+   bash -s" < deploy/setup.sh
 ```
 
 The setup script:
