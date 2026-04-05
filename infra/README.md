@@ -60,6 +60,98 @@ just check
 # Runs: tofu init -backend=false && tofu fmt -check && tofu validate
 ```
 
+## End-to-End Provisioning
+
+Complete walkthrough from zero to verified infrastructure and back. Run this as a single session to confirm the full stack works.
+
+### Prerequisites
+
+Before starting, ensure:
+
+- **CLI tools** installed and authenticated: `tofu`, `hcloud`, `wrangler`, `vercel`, `gh`
+- **SSH key pair** (ed25519) for VPS access: `ssh-keygen -t ed25519`
+- **R2 state bucket** created (one-time — see [State Backend Setup](#state-backend-setup-one-time) above)
+- **All credentials** from `.env.example` filled into `.env`
+
+### 1. Environment Setup
+
+```bash
+# Replace the placeholder in versions.tf with your Cloudflare account ID
+# (one-time — the backend endpoint URL contains CLOUDFLARE_ACCOUNT_ID)
+$EDITOR versions.tf
+
+# Fill credentials and source them
+cp .env.example .env
+$EDITOR .env
+source .env
+```
+
+### 2. Initialize and Apply
+
+```bash
+just init-remote
+just apply
+```
+
+After `apply` completes, note the VPS IP from the output:
+
+```bash
+tofu output -raw vps_ipv4
+```
+
+### 3. Bootstrap the VPS
+
+Pipe `deploy/setup.sh` to the new VPS via SSH. The script is idempotent — safe to re-run on partial failure.
+
+```bash
+ssh root@$(tofu output -raw vps_ipv4) 'bash -s' < ../deploy/setup.sh
+```
+
+Then SSH in to fill the application secrets:
+
+```bash
+ssh root@$(tofu output -raw vps_ipv4)
+nano /opt/gira-watcher/.env
+# Fill MOTHERDUCK_TOKEN and any other application secrets
+exit
+```
+
+See [`deploy/README.md`](../deploy/README.md) for full VPS operation details.
+
+### 4. Verify
+
+Run the automated verification script to check all provisioned resources:
+
+```bash
+just verify
+```
+
+This checks: VPS SSH (root + gira), R2 write/read/delete, Vercel project, GitHub branch protection + secrets + environment, and scraper `--help` on VPS.
+
+### 5. Tear Down
+
+```bash
+just destroy
+```
+
+### 6. Post-Destroy Verification (Manual)
+
+After `just destroy`, confirm resources are gone. These checks are manual because `tofu output` returns empty values after destroy.
+
+```bash
+# VPS — should fail with connection refused or timeout
+ssh root@<VPS_IP> exit
+
+# R2 — gira-parquet bucket should be absent
+wrangler r2 bucket list
+
+# Vercel — gira-watcher project should be absent
+vercel project ls
+
+# GitHub — branch protection should return 404
+gh api repos/emanuelfrazao/gira-watcher/branches/main/protection
+```
+
 ## Modules
 
 | Module | Resources | Purpose |
@@ -92,5 +184,6 @@ infra/
 │   └── production.tfvars      # Non-secret production values
 ├── .env.example               # TF_VAR_* secret template
 ├── justfile                   # Operational recipes
+├── verify.sh                  # Automated resource verification
 └── README.md                  # This file
 ```

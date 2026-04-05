@@ -36,3 +36,7 @@ destroy:
 
 # Run CI checks (fmt + validate)
 check: init fmt-check validate
+
+# Verify provisioned resources (run after apply + VPS setup)
+verify:
+    bash verify.sh
