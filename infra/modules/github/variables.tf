@@ -26,5 +26,5 @@ variable "branch_protection_pattern" {
 variable "required_status_checks" {
   description = "Required CI status checks for branch protection"
   type        = list(string)
-  default     = ["ci-gate"]
+  default     = ["CI / ci-gate"]
 }

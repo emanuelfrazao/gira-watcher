@@ -1,0 +1,22 @@
+name: Deploy Scraper
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/scraper/**'
+      - 'deploy/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: gira
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/gira-watcher
+            bash deploy/update.sh

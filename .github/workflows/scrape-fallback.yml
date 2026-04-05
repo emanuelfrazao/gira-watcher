@@ -1,0 +1,27 @@
+name: Scrape Fallback
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - working-directory: packages/scraper
+        run: uv sync
+      # NOTE: Structural placeholder — scraper raises NotImplementedError
+      # until business logic is implemented. Env vars are pre-configured
+      # for R2 Parquet fallback storage.
+      - name: Run station scraper (R2 Parquet fallback)
+        working-directory: packages/scraper
+        run: uv run python -m scraper.main --run-type station
+        env:
+          GIRA_STORAGE_URL: "r2://${{ secrets.R2_ENDPOINT }}/gira-parquet"
+          GIRA_STORAGE_TOKEN: ${{ secrets.R2_ACCESS_KEY }}
+          GIRA_SCHEDULER_IDENTITY: github-actions
+          GIRA_COMMIT_SHA: ${{ github.sha }}
+          GITHUB_RUN_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

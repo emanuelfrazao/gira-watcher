@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      scraper: ${{ steps.filter.outputs.scraper }}
+      website: ${{ steps.filter.outputs.website }}
+      infra: ${{ steps.filter.outputs.infra }}
+      deploy: ${{ steps.filter.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            scraper:
+              - 'packages/scraper/**'
+              - 'packages/db/**'
+            website:
+              - 'packages/website/**'
+            infra:
+              - 'infra/**'
+            deploy:
+              - 'deploy/**'
+
+  scraper:
+    needs: changes
+    if: needs.changes.outputs.scraper == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/scraper
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --all-extras
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pyright
+      - run: uv run pytest
+
+  website:
+    needs: changes
+    if: needs.changes.outputs.website == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/website
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: packages/website/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+
+  infra:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+      - run: tofu init -backend=false
+      - run: tofu fmt -check -recursive
+      - run: tofu validate
+
+  shellcheck:
+    needs: changes
+    if: needs.changes.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: shellcheck deploy/setup.sh deploy/update.sh
+
+  ci-gate:
+    runs-on: ubuntu-latest
+    needs: [scraper, website, infra, shellcheck]
+    if: always()
+    steps:
+      - name: Check results
+        run: |
+          results=(
+            "${{ needs.scraper.result }}"
+            "${{ needs.website.result }}"
+            "${{ needs.infra.result }}"
+            "${{ needs.shellcheck.result }}"
+          )
+          for result in "${results[@]}"; do
+            if [[ "$result" != "success" && "$result" != "skipped" ]]; then
+              echo "::error::Job failed with result: $result"
+              exit 1
+            fi
+          done
+          echo "All CI jobs passed or were skipped"
