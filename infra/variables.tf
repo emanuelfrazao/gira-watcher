@@ -63,8 +63,9 @@ variable "cloudflare_account_id" {
 }
 
 variable "cloudflare_zone_id" {
-  description = "Cloudflare DNS zone ID"
+  description = "Cloudflare DNS zone ID (empty string to skip DNS record)"
   type        = string
+  default     = ""
 }
 
 variable "r2_bucket_name" {

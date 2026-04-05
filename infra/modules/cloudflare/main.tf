@@ -5,6 +5,7 @@ resource "cloudflare_r2_bucket" "parquet" {
 }
 
 resource "cloudflare_dns_record" "vps" {
+  count   = var.zone_id != "" ? 1 : 0
   zone_id = var.zone_id
   name    = "vps"
   type    = "A"
